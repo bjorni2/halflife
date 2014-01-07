@@ -19,6 +19,9 @@
 
 cvar_t	displaysoundlist = {"displaysoundlist","0"};
 
+// Test mod Cvars
+cvar_t crowremtrip = {"mp_crowbarstelurtripmine","1",FCVAR_SERVER };
+
 // multiplayer server rules
 cvar_t	fragsleft	= {"mp_fragsleft","0", FCVAR_SERVER | FCVAR_UNLOGGED };	  // Don't spam console/log files/users with this changing
 cvar_t	timeleft	= {"mp_timeleft","0" , FCVAR_SERVER | FCVAR_UNLOGGED };	  // "      "
@@ -459,6 +462,8 @@ void GameDLLInit( void )
 	g_psv_gravity = CVAR_GET_POINTER( "sv_gravity" );
 	g_psv_aim = CVAR_GET_POINTER( "sv_aim" );
 	g_footsteps = CVAR_GET_POINTER( "mp_footsteps" );
+
+	CVAR_REGISTER (&crowremtrip);
 
 	CVAR_REGISTER (&displaysoundlist);
 	CVAR_REGISTER( &allow_spectators );

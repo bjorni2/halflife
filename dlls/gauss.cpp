@@ -51,7 +51,7 @@ float CGauss::GetFullChargeTime( void )
 	if ( g_pGameRules->IsMultiplayer() )
 #endif
 	{
-		return 1.5;
+		return 1.0;
 	}
 
 	return 4;

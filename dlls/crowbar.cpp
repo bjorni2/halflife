@@ -203,7 +203,7 @@ int CCrowbar::Swing( int fFirst )
 		if (fFirst)
 		{
 			// miss
-			m_flNextPrimaryAttack = GetNextAttackDelay(0.5);
+			m_flNextPrimaryAttack = GetNextAttackDelay(0.3);
 			
 			// player "shoot" animation
 			m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
@@ -250,6 +250,10 @@ int CCrowbar::Swing( int fFirst )
 
 		if (pEntity)
 		{
+			/*if (pEntity->pev->movetype == MOVETYPE_FLY)
+			{
+				ALERT( at_console, "WARNING:Tripmine at removed\n", NULL );
+			}*/
 			if ( pEntity->Classify() != CLASS_NONE && pEntity->Classify() != CLASS_MACHINE )
 			{
 				// play thwack or smack sound
@@ -304,7 +308,7 @@ int CCrowbar::Swing( int fFirst )
 
 		m_pPlayer->m_iWeaponVolume = flVol * CROWBAR_WALLHIT_VOLUME;
 #endif
-		m_flNextPrimaryAttack = GetNextAttackDelay(0.25);
+		m_flNextPrimaryAttack = GetNextAttackDelay(0.10);
 		
 		SetThink( &CCrowbar::Smack );
 		pev->nextthink = UTIL_WeaponTimeBase() + 0.2;

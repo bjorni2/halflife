@@ -2476,6 +2476,12 @@ void PM_Jump (void)
 
 	qboolean cansuperjump = false;
 
+	//XWJ 
+    pmtrace_t trace;
+    vec3_t  end, right; //omega; change, add right 
+    float  smove; //omega; remove fmove 
+    //XWJ 
+
 	if (pmove->dead)
 	{
 		pmove->oldbuttons |= IN_JUMP ;	// don't jump again until released
@@ -2538,6 +2544,60 @@ void PM_Jump (void)
 
 		return;
 	}
+
+	//WALL JUMPING; omegafied 
+    //the distance in units away from the center of the player to trace for a wall 
+    //this could be adjusted to take the players bounding box into account, but this works for standard hl 
+    //bounding boxes. adjust as necessary. 
+    smove = 16; 
+    AngleVectors(pmove->angles, NULL, right, NULL); //convert our angles (not view) and get the right vector 
+    if ( pmove->onground == -1)//check not on ground(only wall jump when in air) 
+    {
+        end[2] = pmove->origin[2]; //make sure the z component is always the same for all checks. 
+        if (pmove->cmd.buttons & IN_JUMP && pmove->cmd.buttons & IN_MOVELEFT) 
+        {
+            if(pmove->oldbuttons & IN_JUMP) //if we aren't holding the button still 
+                return;
+            // check wall to left. 
+            for (i=0; i<2; i++)  //setup the "end" vector ('smove' units to the left of the player) 
+                end[i] = pmove->origin[i] + right[i] * smove; 
+
+            trace = pmove->PM_PlayerTrace (pmove->origin, end, PM_WORLD_ONLY, -1 ); //trace to the world only! 
+            
+            if ( trace.fraction < 1.0 )//if there was a wall 
+            {
+                //add velocity in opposite direction 
+                for (i =0; i < 2; i++)
+                    pmove->velocity[i] = right[i] * -PLAYER_LONGJUMP_SPEED * 1.1;
+
+                pmove->velocity[2] = sqrt(2 * 800 * 56.0);
+                pmove->oldbuttons &= ~IN_JUMP; //allow us to walljump again, if we get against another wall that is 
+                return; //omega; get out! (so flags don't get reset below if we're still holding the key! 
+            }
+        }
+        else if (pmove->cmd.buttons & IN_JUMP && pmove->cmd.buttons & IN_MOVERIGHT) 
+        {
+            if(pmove->oldbuttons & IN_JUMP)
+                return;
+
+            // check wall to left. 
+            for (i=0; i<2; i++) //omega; check the opposite direction 
+                end[i] = pmove->origin[i] + right[i] * -smove; 
+            
+            trace = pmove->PM_PlayerTrace (pmove->origin, end, PM_WORLD_ONLY, -1 );
+            if ( trace.fraction < 1.0 )//if there was a wall 
+            {
+                //add velocity in opposite direction 
+                for (i =0; i < 2; i++)
+                    pmove->velocity[i] = right[i] * PLAYER_LONGJUMP_SPEED * 1.1;
+                pmove->velocity[2] = sqrt(2 * 800 * 56.0);
+                pmove->oldbuttons &= ~IN_JUMP; 
+                //omega; allow us to walljump again (if we get against another wall that is) 
+                return; //omega;get out! (so flags don't get reset below if we're still holding the key! 
+            }
+        }
+    }
+    //END WALLJUMPING 
 
 	// No more effect
  	if ( pmove->onground == -1 )

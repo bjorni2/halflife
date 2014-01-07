@@ -256,7 +256,7 @@ void CTripmineGrenade :: MakeBeam( void )
 
 	m_pBeam = CBeam::BeamCreate( g_pModelNameLaser, 10 );
 	m_pBeam->PointEntInit( vecTmpEnd, entindex() );
-	m_pBeam->SetColor( 0, 214, 198 );
+	m_pBeam->SetColor( 0, 0, 0 );
 	m_pBeam->SetScrollRate( 255 );
 	m_pBeam->SetBrightness( 64 );
 }
@@ -320,6 +320,16 @@ int CTripmineGrenade :: TakeDamage( entvars_t *pevInflictor, entvars_t *pevAttac
 		SetThink( &CTripmineGrenade::SUB_Remove );
 		pev->nextthink = gpGlobals->time + 0.1;
 		KillBeam();
+		return FALSE;
+	}
+	// Crowbar removes tripmines and gives it to the attacking player
+	if( bitsDamageType & DMG_CLUB && CVAR_GET_FLOAT("mp_crowbarstelurtripmine") )
+	{
+		SetThink( &CTripmineGrenade::SUB_Remove );
+		pev->nextthink = gpGlobals->time;
+		KillBeam();
+		CBasePlayer *pEntity = (CBasePlayer *)GET_PRIVATE(ENT(pevAttacker));
+		pEntity->GiveNamedItem("weapon_tripmine");
 		return FALSE;
 	}
 	return CGrenade::TakeDamage( pevInflictor, pevAttacker, flDamage, bitsDamageType );

@@ -109,7 +109,7 @@ CRpgRocket *CRpgRocket::CreateRpgRocket( Vector vecOrigin, Vector vecAngles, CBa
 
 	UTIL_SetOrigin( pRocket->pev, vecOrigin );
 	pRocket->pev->angles = vecAngles;
-	pRocket->Spawn();
+	pRocket->Spawn(pLauncher);
 	pRocket->SetTouch( &CRpgRocket::RocketTouch );
 	pRocket->m_pLauncher = pLauncher;// remember what RPG fired me. 
 	pRocket->m_pLauncher->m_cActiveRockets++;// register this missile as active for the launcher
@@ -120,7 +120,7 @@ CRpgRocket *CRpgRocket::CreateRpgRocket( Vector vecOrigin, Vector vecAngles, CBa
 
 //=========================================================
 //=========================================================
-void CRpgRocket :: Spawn( void )
+void CRpgRocket :: Spawn( CRpg *pLauncher )
 {
 	Precache( );
 	// motor
@@ -129,8 +129,33 @@ void CRpgRocket :: Spawn( void )
 
 	SET_MODEL(ENT(pev), "models/rpgrocket.mdl");
 	UTIL_SetSize(pev, Vector( 0, 0, 0), Vector(0, 0, 0));
-	UTIL_SetOrigin( pev, pev->origin );
-
+	
+	if(pLauncher->m_pSpot != NULL)
+	{
+		UTIL_SetOrigin( pev, pLauncher->m_pSpot->pev->origin );
+	}
+	else
+	{
+		UTIL_SetOrigin( pev, pev->origin );
+	}
+	/*CBaseEntity *pSpot = NULL;
+	if((pSpot = UTIL_FindEntityByClassname( pSpot, "laser_spot" )) != NULL)
+	{
+		if(pLauncher != NULL)
+		{
+			UTIL_SetOrigin( pev, pLauncher->m_pSpot->pev->origin );
+			ALERT( at_console, "%f, %f, %f\n", pev->origin.x, pev->origin.y, pev->origin.z );
+		}
+		else
+		{
+			UTIL_SetOrigin( pev, pSpot->pev->origin );
+		}
+	}
+	else
+	{
+		UTIL_SetOrigin( pev, pev->origin );
+	}*/
+	//ALERT( at_console, "%f, %f, %f\n", pev->origin.x, pev->origin.y, pev->origin.z );
 	pev->classname = MAKE_STRING("rpg_rocket");
 
 	SetThink( &CRpgRocket::IgniteThink );
@@ -140,7 +165,8 @@ void CRpgRocket :: Spawn( void )
 	UTIL_MakeVectors( pev->angles );
 	pev->angles.x = -(pev->angles.x + 30);
 
-	pev->velocity = gpGlobals->v_forward * 250;
+	pev->velocity = gpGlobals->v_forward; // * 250;
+	//ALERT( at_console, "%f, %f, %f\n", gpGlobals->v_forward.x, gpGlobals->v_forward.y, gpGlobals->v_forward.z );
 	pev->gravity = 0.5;
 
 	pev->nextthink = gpGlobals->time + 0.4;
@@ -492,7 +518,7 @@ void CRpg::PrimaryAttack()
 
 void CRpg::SecondaryAttack()
 {
-	m_fSpotActive = ! m_fSpotActive;
+	/*m_fSpotActive = ! m_fSpotActive;
 
 #ifndef CLIENT_DLL
 	if (!m_fSpotActive && m_pSpot)
@@ -502,7 +528,7 @@ void CRpg::SecondaryAttack()
 	}
 #endif
 
-	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.2;
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.2;*/
 }
 
 

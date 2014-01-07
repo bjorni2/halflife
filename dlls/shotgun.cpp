@@ -24,7 +24,8 @@
 
 // special deathmatch shotgun spreads
 #define VECTOR_CONE_DM_SHOTGUN	Vector( 0.08716, 0.04362, 0.00  )// 10 degrees by 5 degrees
-#define VECTOR_CONE_DM_DOUBLESHOTGUN Vector( 0.17365, 0.04362, 0.00 ) // 20 degrees by 5 degrees
+//#define VECTOR_CONE_DM_DOUBLESHOTGUN Vector( 0.17365, 0.04362, 0.00 ) // 20 degrees by 5 degrees
+#define VECTOR_CONE_DM_DOUBLESHOTGUN Vector( 0.08716, 0.08716, 0.00 ) // 10 degrees by 10 degrees
 
 enum shotgun_e {
 	SHOTGUN_IDLE = 0,
@@ -40,6 +41,11 @@ enum shotgun_e {
 };
 
 LINK_ENTITY_TO_CLASS( weapon_shotgun, CShotgun );
+
+int CShotgun::SecondaryAmmoIndex( void )
+{
+	return m_iSecondaryAmmoType;
+}
 
 void CShotgun::Spawn( )
 {
@@ -97,8 +103,8 @@ int CShotgun::GetItemInfo(ItemInfo *p)
 	p->pszName = STRING(pev->classname);
 	p->pszAmmo1 = "buckshot";
 	p->iMaxAmmo1 = BUCKSHOT_MAX_CARRY;
-	p->pszAmmo2 = NULL;
-	p->iMaxAmmo2 = -1;
+	p->pszAmmo2 = "ARgrenades";
+	p->iMaxAmmo2 = M203_GRENADE_MAX_CARRY;
 	p->iMaxClip = SHOTGUN_MAX_CLIP;
 	p->iSlot = 2;
 	p->iPosition = 1;
@@ -115,7 +121,7 @@ BOOL CShotgun::Deploy( )
 {
 	return DefaultDeploy( "models/v_shotgun.mdl", "models/p_shotgun.mdl", SHOTGUN_DRAW, "shotgun" );
 }
-
+/*
 void CShotgun::PrimaryAttack()
 {
 	// don't fire underwater
@@ -178,7 +184,7 @@ void CShotgun::PrimaryAttack()
 	if (m_iClip != 0)
 		m_flPumpTime = gpGlobals->time + 0.5;
 
-	m_flNextPrimaryAttack = GetNextAttackDelay(0.75);
+	m_flNextPrimaryAttack = GetNextAttackDelay(0.15);
 	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 0.75;
 	if (m_iClip != 0)
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5.0;
@@ -186,9 +192,9 @@ void CShotgun::PrimaryAttack()
 		m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 0.75;
 	m_fInSpecialReload = 0;
 }
+*/
 
-
-void CShotgun::SecondaryAttack( void )
+void CShotgun::PrimaryAttack()
 {
 	// don't fire underwater
 	if (m_pPlayer->pev->waterlevel == 3)
@@ -198,7 +204,7 @@ void CShotgun::SecondaryAttack( void )
 		return;
 	}
 
-	if (m_iClip <= 1)
+	if (m_iClip <= 3)
 	{
 		Reload( );
 		PlayEmptySound( );
@@ -208,7 +214,7 @@ void CShotgun::SecondaryAttack( void )
 	m_pPlayer->m_iWeaponVolume = LOUD_GUN_VOLUME;
 	m_pPlayer->m_iWeaponFlash = NORMAL_GUN_FLASH;
 
-	m_iClip -= 2;
+	m_iClip -= 4;
 
 
 	int flags;
@@ -235,12 +241,12 @@ void CShotgun::SecondaryAttack( void )
 #endif
 	{
 		// tuned for deathmatch
-		vecDir = m_pPlayer->FireBulletsPlayer( 8, vecSrc, vecAiming, VECTOR_CONE_DM_DOUBLESHOTGUN, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
+		vecDir = m_pPlayer->FireBulletsPlayer( 16, vecSrc, vecAiming, VECTOR_CONE_DM_DOUBLESHOTGUN, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 	else
 	{
 		// untouched default single player
-		vecDir = m_pPlayer->FireBulletsPlayer( 12, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
+		vecDir = m_pPlayer->FireBulletsPlayer( 24, vecSrc, vecAiming, VECTOR_CONE_10DEGREES, 2048, BULLET_PLAYER_BUCKSHOT, 0, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 		
 	PLAYBACK_EVENT_FULL( flags, m_pPlayer->edict(), m_usDoubleFire, 0.0, (float *)&g_vecZero, (float *)&g_vecZero, vecDir.x, vecDir.y, 0, 0, 0, 0 );
@@ -260,7 +266,58 @@ void CShotgun::SecondaryAttack( void )
 		m_flTimeWeaponIdle = 1.5;
 
 	m_fInSpecialReload = 0;
+}
 
+void CShotgun::SecondaryAttack( void )
+{
+	// don't fire underwater
+	if (m_pPlayer->pev->waterlevel == 3)
+	{
+		PlayEmptySound( );
+		m_flNextPrimaryAttack = 0.15;
+		return;
+	}
+
+	if (m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType] == 0)
+	{
+		PlayEmptySound( );
+		return;
+	}
+
+	m_pPlayer->m_iWeaponVolume = NORMAL_GUN_VOLUME;
+	m_pPlayer->m_iWeaponFlash = BRIGHT_GUN_FLASH;
+
+	//m_pPlayer->m_iExtraSoundTypes = bits_SOUND_DANGER;
+	m_pPlayer->m_flStopExtraSoundTime = UTIL_WeaponTimeBase() + 0.2;
+			
+	m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType]--;
+
+	// player "shoot" animation
+	m_pPlayer->SetAnimation( PLAYER_ATTACK1 );
+
+ 	UTIL_MakeVectors( m_pPlayer->pev->v_angle + m_pPlayer->pev->punchangle );
+
+	// we don't add in player velocity anymore.
+	CGrenade::ShootContact( m_pPlayer->pev, 
+							m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16, 
+							gpGlobals->v_forward * 800 );
+
+	int flags;
+#if defined( CLIENT_WEAPONS )
+	flags = FEV_NOTHOST;
+#else
+	flags = 0;
+#endif
+
+	PLAYBACK_EVENT( flags, m_pPlayer->edict(), m_usSingleFire );
+	
+	m_flNextPrimaryAttack = GetNextAttackDelay(1);
+	m_flNextSecondaryAttack = UTIL_WeaponTimeBase() + 1;
+	m_flTimeWeaponIdle = UTIL_WeaponTimeBase() + 5;// idle pretty soon after shooting.
+
+	if (!m_pPlayer->m_rgAmmo[m_iSecondaryAmmoType])
+		// HEV suit - indicate out of ammo condition
+		m_pPlayer->SetSuitUpdate("!HEV_AMO0", FALSE, 0);
 }
 
 
@@ -332,7 +389,7 @@ void CShotgun::WeaponIdle( void )
 		}
 		else if (m_fInSpecialReload != 0)
 		{
-			if (m_iClip != 8 && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
+			if (m_iClip != SHOTGUN_MAX_CLIP && m_pPlayer->m_rgAmmo[m_iPrimaryAmmoType])
 			{
 				Reload( );
 			}
@@ -371,6 +428,19 @@ void CShotgun::WeaponIdle( void )
 	}
 }
 
+BOOL CShotgun :: IsUseable( void )
+{
+	if ( m_iClip <= 0 )
+	{
+		if ( m_pPlayer->m_rgAmmo[ PrimaryAmmoIndex() ] <= 0 && iMaxAmmo1() != -1 && m_pPlayer->m_rgAmmo[ SecondaryAmmoIndex() ] <= 0 && iMaxAmmo2() != -1 )			
+		{
+			// clip is empty (or nonexistant) and the player has no more ammo of this type. 
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
 
 
 class CShotgunAmmo : public CBasePlayerAmmo

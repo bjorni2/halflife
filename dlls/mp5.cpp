@@ -128,12 +128,12 @@ BOOL CMP5::Deploy( )
 void CMP5::PrimaryAttack()
 {
 	// don't fire underwater
-	if (m_pPlayer->pev->waterlevel == 3)
+	/*if (m_pPlayer->pev->waterlevel == 3)
 	{
 		PlayEmptySound( );
 		m_flNextPrimaryAttack = 0.15;
 		return;
-	}
+	}*/
 
 	if (m_iClip <= 0)
 	{
@@ -163,13 +163,13 @@ void CMP5::PrimaryAttack()
 	if ( !g_pGameRules->IsMultiplayer() )
 #endif
 	{
-		// optimized multiplayer. Widened to make it easier to hit a moving player
-		vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_6DEGREES, 8192, BULLET_PLAYER_MP5, 2, 0, m_pPlayer->pev, m_pPlayer->random_seed );
+		// Singleplayer spread
+		vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 2, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 	else
 	{
-		// single player spread
-		vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_3DEGREES, 8192, BULLET_PLAYER_MP5, 2, 0, m_pPlayer->pev, m_pPlayer->random_seed );
+		// Multiplayer spread
+		vecDir = m_pPlayer->FireBulletsPlayer( 1, vecSrc, vecAiming, VECTOR_CONE_1DEGREES, 8192, BULLET_PLAYER_MP5, 2, 0, m_pPlayer->pev, m_pPlayer->random_seed );
 	}
 
   int flags;
@@ -283,6 +283,19 @@ void CMP5::WeaponIdle( void )
 	m_flTimeWeaponIdle = UTIL_SharedRandomFloat( m_pPlayer->random_seed, 10, 15 ); // how long till we do this again.
 }
 
+BOOL CMP5 :: IsUseable( void )
+{
+	if ( m_iClip <= 0 )
+	{
+		if ( m_pPlayer->m_rgAmmo[ PrimaryAmmoIndex() ] <= 0 && iMaxAmmo1() != -1 && m_pPlayer->m_rgAmmo[ SecondaryAmmoIndex() ] <= 0 && iMaxAmmo2() != -1 )			
+		{
+			// clip is empty (or nonexistant) and the player has no more ammo of this type. 
+			return FALSE;
+		}
+	}
+
+	return TRUE;
+}
 
 
 class CMP5AmmoClip : public CBasePlayerAmmo

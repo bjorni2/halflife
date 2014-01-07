@@ -127,8 +127,8 @@ public:
 #define GLOCK_MAX_CLIP			17
 #define PYTHON_MAX_CLIP			6
 #define MP5_MAX_CLIP			50
-#define MP5_DEFAULT_AMMO		25
-#define SHOTGUN_MAX_CLIP		8
+#define MP5_DEFAULT_AMMO		50
+#define SHOTGUN_MAX_CLIP		4
 #define CROSSBOW_MAX_CLIP		5
 #define RPG_MAX_CLIP			1
 #define GAUSS_MAX_CLIP			WEAPON_NOCLIP
@@ -143,8 +143,8 @@ public:
 // the default amount of ammo that comes with each gun when it spawns
 #define GLOCK_DEFAULT_GIVE			17
 #define PYTHON_DEFAULT_GIVE			6
-#define MP5_DEFAULT_GIVE			25
-#define MP5_DEFAULT_AMMO			25
+#define MP5_DEFAULT_GIVE			50
+#define MP5_DEFAULT_AMMO			50
 #define MP5_M203_DEFAULT_GIVE		0
 #define SHOTGUN_DEFAULT_GIVE		12
 #define CROSSBOW_DEFAULT_GIVE		5
@@ -577,6 +577,8 @@ public:
 	float m_flNextAnimTime;
 	int m_iShell;
 
+	BOOL IsUseable( void );
+
 	virtual BOOL UseDecrement( void )
 	{ 
 #if defined( CLIENT_WEAPONS )
@@ -650,6 +652,9 @@ public:
 	int m_fInReload;
 	float m_flNextReload;
 	int m_iShell;
+
+	int SecondaryAmmoIndex( void );
+	BOOL IsUseable( void );
 
 	virtual BOOL UseDecrement( void )
 	{ 
@@ -731,7 +736,7 @@ public:
 	int		Save( CSave &save );
 	int		Restore( CRestore &restore );
 	static	TYPEDESCRIPTION m_SaveData[];
-	void Spawn( void );
+	void Spawn( CRpg *pLauncher );
 	void Precache( void );
 	void EXPORT FollowThink( void );
 	void EXPORT IgniteThink( void );
