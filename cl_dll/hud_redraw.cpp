@@ -84,6 +84,15 @@ void CHud::Think(void)
 		m_iFOV = max( default_fov->value, 90 );  
 	}
 	
+	// Test mod
+	//Figure out how much time is left (if we are counting)
+	if( m_bCountdown )
+	{
+		m_flTimeLeft = m_flCountdownStartTime + m_iCountdownDuration - m_flTime; 
+		if( m_flTimeLeft < 0)   // if we get to less than 0, we want to stop
+			m_bCountdown = false;
+	}
+
 	if ( gEngfuncs.IsSpectateOnly() )
 	{
 		m_iFOV = gHUD.m_Spectator.GetFOV();	// default_fov->value;
@@ -197,6 +206,20 @@ int CHud :: Redraw( float flTime, int intermission )
 		SPR_DrawAdditive(i, x, y, NULL);
 	}
 
+	// Test mod
+	//Draw the Countdown
+    if( m_bCountdown )
+    {
+		int rVal = 100;
+		int gVal = 100;
+		int bVal = 100;
+		if( m_flTimeLeft < 2 )
+			rVal = 255;     //red text when less than 10 sec left
+
+		DrawHudFloatString( 20, 20, 200, m_flTimeLeft, rVal, gVal, bVal );
+
+	}  
+
 	/*
 	if ( g_iVisibleMouse )
 	{
@@ -239,6 +262,13 @@ int CHud :: DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int
 {
 	char szString[32];
 	sprintf( szString, "%d", iNumber );
+	return DrawHudStringReverse( xpos, ypos, iMinX, szString, r, g, b );
+}
+
+int CHud :: DrawHudFloatString( int xpos, int ypos, int iMinX, float fNumber, int r, int g, int b )
+{
+	char szString[32];
+	sprintf( szString, "%1.1f", fNumber );
 	return DrawHudStringReverse( xpos, ypos, iMinX, szString, r, g, b );
 
 }

@@ -188,7 +188,8 @@ int gmsgTeamNames = 0;
 int gmsgStatusText = 0;
 int gmsgStatusValue = 0; 
 
-
+// Test mod
+int gmsgGrCounter = 0;
 
 void LinkUserMessages( void )
 {
@@ -236,6 +237,8 @@ void LinkUserMessages( void )
 	gmsgStatusText = REG_USER_MSG("StatusText", -1);
 	gmsgStatusValue = REG_USER_MSG("StatusValue", 3); 
 
+	// Test mod
+	gmsgGrCounter = REG_USER_MSG("GrCounter", 4);
 }
 
 LINK_ENTITY_TO_CLASS( player, CBasePlayer );

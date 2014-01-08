@@ -566,11 +566,18 @@ public:
 	cvar_t  *m_pCvarStealMouse;
 	cvar_t	*m_pCvarDraw;
 
+	// Test mod
+	float m_flCountdownStartTime;   // stores the time our countdown started
+	float m_flTimeLeft;         // time to put on HUD
+	int m_iCountdownDuration;       // duration of the countdown
+	bool m_bCountdown;          // countdown active?
+
 	int m_iFontHeight;
 	int DrawHudNumber(int x, int y, int iFlags, int iNumber, int r, int g, int b );
 	int DrawHudString(int x, int y, int iMaxX, char *szString, int r, int g, int b );
 	int DrawHudStringReverse( int xpos, int ypos, int iMinX, char *szString, int r, int g, int b );
 	int DrawHudNumberString( int xpos, int ypos, int iMinX, int iNumber, int r, int g, int b );
+	int DrawHudFloatString( int xpos, int ypos, int iMinX, float fNumber, int r, int g, int b );
 	int GetNumWidth(int iNumber, int iFlags);
 
 private:
@@ -630,6 +637,9 @@ public:
 	void _cdecl MsgFunc_ViewMode( const char *pszName, int iSize, void *pbuf );
 	int _cdecl MsgFunc_SetFOV(const char *pszName,  int iSize, void *pbuf);
 	int  _cdecl MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf );
+
+	// Test mod
+	int  _cdecl MsgFunc_GrCounter( const char *pszName, int iSize, void *pbuf );
 
 	// Screen information
 	SCREENINFO	m_scrinfo;

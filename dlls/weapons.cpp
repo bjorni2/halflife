@@ -639,7 +639,7 @@ BOOL CanAttack( float attack_time, float curtime, BOOL isPredicted )
 		return ( attack_time <= 0.0 ) ? TRUE : FALSE;
 	}
 }
-
+extern int gmsgGrCounter;
 void CBasePlayerWeapon::ItemPostFrame( void )
 {
 	if ((m_fInReload) && ( m_pPlayer->m_flNextAttack <= UTIL_WeaponTimeBase() ) )
@@ -681,6 +681,11 @@ void CBasePlayerWeapon::ItemPostFrame( void )
 
 		m_pPlayer->TabulateAmmo();
 		PrimaryAttack();
+		// Test mod
+		MESSAGE_BEGIN( MSG_ALL, gmsgGrCounter );
+			WRITE_SHORT( 1 );
+			WRITE_SHORT( 3 );
+		MESSAGE_END();
 	}
 	else if ( m_pPlayer->pev->button & IN_RELOAD && iMaxClip() != WEAPON_NOCLIP && !m_fInReload ) 
 	{

@@ -139,3 +139,30 @@ int CHud :: MsgFunc_Concuss( const char *pszName, int iSize, void *pbuf )
 		this->m_StatusIcons.DisableIcon("dmg_concuss");
 	return 1;
 }
+
+// Test mod
+#define START_COUNTING 1    //should agree with server side values
+#define STOP_COUNTING 0     
+
+int CHud :: MsgFunc_GrCounter( const char *pszName, int iSize, void *pbuf )
+{
+	BEGIN_READ( pbuf, iSize );
+
+	int iAction = READ_SHORT();
+	int iDuration = READ_SHORT();
+
+	if( iAction == 1 )  //start the countdown
+	{
+		m_bCountdown = true;
+		m_flCountdownStartTime = m_flTime;
+		m_iCountdownDuration = iDuration;
+	}
+	else                //end the countdown
+	{
+		m_bCountdown = false;
+		m_flCountdownStartTime = 0;
+		m_iCountdownDuration = 0;
+	}
+
+	return 1;
+}

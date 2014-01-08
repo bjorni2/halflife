@@ -23,6 +23,8 @@
 
 #define	HANDGRENADE_PRIMARY_VOLUME		450
 
+
+
 enum handgrenade_e {
 	HANDGRENADE_IDLE = 0,
 	HANDGRENADE_FIDGET,
@@ -140,10 +142,10 @@ void CHandGrenade::WeaponIdle( void )
 		else
 			angThrow.x = -10 + angThrow.x * ( ( 90 + 10 ) / 90.0 );
 
-		float flVel = ( 90 - angThrow.x ) * 4;
-		if ( flVel > 500 )
-			flVel = 500;
-
+		float flVel = ( 90 - angThrow.x ) * 6;
+		if ( flVel > 800 )
+			flVel = 800;
+		ALERT( at_console, "flVel: %f\n", flVel );
 		UTIL_MakeVectors( angThrow );
 
 		Vector vecSrc = m_pPlayer->pev->origin + m_pPlayer->pev->view_ofs + gpGlobals->v_forward * 16;
